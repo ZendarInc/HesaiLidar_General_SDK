@@ -885,9 +885,14 @@ void PandarGeneral_Internal::ProcessLiarPacket() {
                start_angle_ <= pkt.blocks[i].azimuth) ||
               (last_azimuth_ < start_angle_ &&
                start_angle_ <= pkt.blocks[i].azimuth)) {
-            if (pcl_callback_ &&
-                (iPointCloudIndex > 0 || PointCloudList[0].size() > 0)) {
-              EmitBackMessege(pkt.header.chLaserNumber, outMsg);
+            if (pcl_callback_) {
+              // On every revolution, always send back the point cloud.
+              // This implies that some lasers/rings may not have a point but that is okay.
+              if (pcl_type_) {
+                EmitBackMessege(pkt.header.chLaserNumber, outMsg);
+              } else if (iPointCloudIndex > 0) {
+                EmitBackMessege(pkt.header.chLaserNumber, outMsg);
+              }
             }
           }
         } else {
